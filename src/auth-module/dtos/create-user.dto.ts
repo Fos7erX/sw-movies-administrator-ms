@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import {IsEnum, IsNotEmpty, IsNumber, IsString, IsStrongPassword, minLength} from 'class-validator';
+import {IsEmail, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, IsStrongPassword, minLength} from 'class-validator';
 import { UserRole } from "../../database-module/entities/user.entity";
 
 
@@ -9,6 +9,7 @@ import { UserRole } from "../../database-module/entities/user.entity";
 // el símbolo "?" para indicar que el valor puede ser nulo, o definir un
 //valor de ejemplo como un empty string en los strings, o 0 en los numbers
 export class CreateUserDto{
+    @IsOptional()
     @IsNumber()
     id!: number;
 
@@ -23,6 +24,7 @@ export class CreateUserDto{
         description:'Email de usuario.',
         example:'homero.simpson@springfield.com'
     })
+    @IsEmail()
     email!:string;
 
     @ApiProperty({
