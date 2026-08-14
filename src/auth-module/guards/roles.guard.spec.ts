@@ -1,4 +1,4 @@
-import { ExecutionContext, ForbiddenException } from '@nestjs/common';
+import { ExecutionContext, ForbiddenException, UnauthorizedException } from '@nestjs/common';
 import { RolesGuard } from './roles.guard';
 import { Reflector } from '@nestjs/core';
 import { UserRole } from '../../database-module/entities/user.entity';
@@ -32,9 +32,9 @@ describe('RolesGuard', () => {
     expect(guard.canActivate(mockExecutionContext({ role: UserRole.USER }))).toBe(true);
   });
 
-  it('lanza ForbiddenException si no hay user', () => {
+  it('lanza UnauthorizedException si el usuario no está autenticado', () => {
     (reflector.getAllAndOverride as jest.Mock).mockReturnValue([UserRole.USER]);
-    expect(() => guard.canActivate(mockExecutionContext(undefined))).toThrow(ForbiddenException);
+    expect(() => guard.canActivate(mockExecutionContext(undefined))).toThrow(UnauthorizedException);
   });
 
   it('lanza ForbiddenException si rol no coincide', () => {
