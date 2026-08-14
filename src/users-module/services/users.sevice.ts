@@ -1,6 +1,6 @@
 import { Repository } from 'typeorm';
 import { User, UserRole } from '../../database-module/entities/user.entity';
-import { CreateUserRequestDto } from '../../auth-module/dtos/create-user-request.dto';
+import { CreateUserRequestDto } from '../../auth-module/dtos/request/create-user-request.dto';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 

@@ -1,8 +1,8 @@
 import { AuthController } from './auth.controller';
 import { AuthService } from '../services/auth.service';
 import { Test } from '@nestjs/testing';
-import { CreateUserRequestDto } from '../dtos/create-user-request.dto';
-import { LoginUserRequestDto } from '../dtos/login-user-request.dto';
+import { CreateUserRequestDto } from '../dtos/request/create-user-request.dto';
+import { LoginUserRequestDto } from '../dtos/request/login-user-request.dto';
 
 const mockAuthService = {
   registerUser: jest.fn(),

@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import {IsEmail, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, IsStrongPassword, minLength} from 'class-validator';
-import { UserRole } from "../../database-module/entities/user.entity";
+import { UserRole } from "../../../database-module/entities/user.entity";
 
 
 //Notas para documentación:

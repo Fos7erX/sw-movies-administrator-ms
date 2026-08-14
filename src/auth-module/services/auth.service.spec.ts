@@ -3,8 +3,8 @@ import { AuthService } from './auth.service';
 import { UsersService } from '../../users-module/services/users.sevice';
 import { JwtService } from '@nestjs/jwt';
 import { UserRole } from '../../database-module/entities/user.entity';
-import { CreateUserRequestDto } from '../dtos/create-user-request.dto';
-import { LoginUserRequestDto } from '../dtos/login-user-request.dto';
+import { CreateUserRequestDto } from '../dtos/request/create-user-request.dto';
+import { LoginUserRequestDto } from '../dtos/request/login-user-request.dto';
 
 jest.mock('@node-rs/argon2', () => ({
   hash: jest.fn(),

@@ -71,7 +71,7 @@ export class MoviesManagementService {
       updateMovieRequestDto.id,
       updateMovieRequestDto,
     );
-    this.moviesRepository.findOneBy({ id: updateMovieRequestDto.id });
+    return this.moviesRepository.findOneBy({ id: updateMovieRequestDto.id });
   }
 
   async deleteMovie(deleteMovieRequestDto: DeleteMovieRequestDto) {
@@ -107,7 +107,7 @@ export class MoviesManagementService {
 
       //Debido a un error de externalid not set (Lo cual genera un 503: Service Unavailable, se genera el siguiente fix)
 
-      //Normalización de externalIds -> TODO: Ver si puedo refactorizar un poco esto
+      //Normalización de externalIds 
       const externalIds = movies.map((m) => m.externalId).filter(Boolean);
 
       let moviesToUpsert = movies;

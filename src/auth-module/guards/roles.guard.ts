@@ -1,4 +1,4 @@
-import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from '@nestjs/common';
+import { Injectable, CanActivate, ExecutionContext, ForbiddenException, UnauthorizedException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { UserRole } from '../../database-module/entities/user.entity';
 import { ROLES_KEY } from '../decorators/roles.decorator';
@@ -19,7 +19,7 @@ export class RolesGuard implements CanActivate {
     const { user } = context.switchToHttp().getRequest();
     
     if (!user) {
-      throw new ForbiddenException('Usuario no autenticado');
+      throw new UnauthorizedException('Usuario no autenticado');
     }
 
     // Verifica si el rol del usuario está en la lista de roles permitidos

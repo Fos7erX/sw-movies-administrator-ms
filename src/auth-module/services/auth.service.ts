@@ -5,8 +5,8 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { hash, verify } from '@node-rs/argon2';
-import { CreateUserRequestDto } from '../dtos/create-user-request.dto';
-import { LoginUserRequestDto } from '../dtos/login-user-request.dto';
+import { CreateUserRequestDto } from '../dtos/request/create-user-request.dto';
+import { LoginUserRequestDto } from '../dtos/request/login-user-request.dto';
 import { UsersService } from '../../users-module/services/users.sevice';
 
 //Notas para documentación:
