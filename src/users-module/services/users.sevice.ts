@@ -1,6 +1,6 @@
 import { Repository } from 'typeorm';
 import { User, UserRole } from '../../database-module/entities/user.entity';
-import { CreateUserDto } from '../../auth-module/dtos/create-user.dto';
+import { CreateUserRequestDto } from '../../auth-module/dtos/create-user-request.dto';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
@@ -19,7 +19,7 @@ export class UsersService {
       .getOne();
   }
 
-  async create(createUser: CreateUserDto): Promise<User> {
+  async create(createUser: CreateUserRequestDto): Promise<User> {
     const user = this.usersRepository.create({
       ...createUser
     });

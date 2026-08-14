@@ -1,14 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { DeleteMovieDto } from '../dtos/delete-movie.dto';
 import { firstValueFrom } from 'rxjs';
 import { HttpService } from '@nestjs/axios';
-import { GetMovieDetailsDto } from '../dtos/get-movie-details.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Movie } from '../../database-module/entities/movie.entity';
-import { Repository } from 'typeorm';
-import { CreateMovieDto } from '../dtos/create-movie.dto';
-import { UpdateMovieDto } from '../dtos/update-movie.dto';
+import { Repository, In } from 'typeorm';
+import { UpdateMovieRequestDto } from '../dtos/request/update-movie-request.dto';
 import { mapSwapiMovieToEntity } from '../mappers/map-swapi-movie-to-entity.mapper';
+import { GetMovieDetailsRequestDto } from '../dtos/request/get-movie-details-request.dto';
+import { CreateMovieRequestDto } from '../dtos/request/create-movie-request.dto';
+import { DeleteMovieRequestDto } from '../dtos/request/delete-movie-request.dto';
 
 @Injectable()
 export class MoviesManagementService {
@@ -27,39 +27,15 @@ export class MoviesManagementService {
       });
 
       if (Array.isArray(localMoviesRepo) && localMoviesRepo.length === 0) {
-        return await this.syncMoviesFromAPI();
+        const swapiMovies = await this.syncMoviesFromAPI();
+        if (swapiMovies.synchronized == 0) {
+          throw new NotFoundException('No se encontraron películas');
+        } else {
+          return swapiMovies;
+        }
       } else {
         return localMoviesRepo;
       }
-      // try {
-      //   //1. Primero me traigo todas las películas de la tabla movies
-      //   const localMovies = await this.moviesRepository.find();
-
-      //   //Luego, me traigo todas las películas de la API de SWAPI
-
-      //   let swapiMovies: Array<any> = [];
-      //   const response = await firstValueFrom(
-      //     this.httpService.get('https://www.swapi.tech/api/films/'),
-      //   );
-      //   swapiMovies = response.data.result ?? [];
-
-      //   //Ahora que tengo ambos datos, voy a mapear las películas de swapi para mergear ambos arrays, y así poder retornar todo junto.
-      //   const mappedSwapiMovies = swapiMovies.map((swapiMovie) =>
-      //     mapSwapiMovieToEntity(swapiMovie),
-      //   );
-
-      //   //Ahora voy a filtrar las películas repetidas:
-      //   const localExternalIds = new Set(
-      //     localMovies.map((movie) => movie.externalId).filter(Boolean),
-      //   );
-
-      //   // Agrego las películas de SWAPI que no existen localmente
-      //   const newSwapiMovies = mappedSwapiMovies.filter(
-      //     (movie) => !localExternalIds.has(movie.externalId),
-      //   );
-
-      //   // Y finalmente hago el merge de ambos arrays, para retornar todas las películas
-      //   return [...localMovies, ...newSwapiMovies];
     } catch (error: any) {
       console.error('SWAPI Error Status:', error.response?.status);
       console.error('SWAPI Error Data:', error.response?.data);
@@ -68,11 +44,11 @@ export class MoviesManagementService {
     }
   }
 
-  async getMovieDetails(getMovieDetailsDto: GetMovieDetailsDto) {
+  async getMovieDetails(getMovieDetailsRequestDto: GetMovieDetailsRequestDto) {
     const movie = await this.moviesRepository.findOne({
       where: [
-        { id: Number(getMovieDetailsDto.id) },
-        { externalId: String(getMovieDetailsDto.id) },
+        { id: Number(getMovieDetailsRequestDto.id) },
+        { externalId: String(getMovieDetailsRequestDto.id) },
       ],
     });
 
@@ -83,21 +59,24 @@ export class MoviesManagementService {
     return movie;
   }
 
-  async createMovie(createMovieDto: CreateMovieDto) {
+  async createMovie(createMovieRequestDto: CreateMovieRequestDto) {
     //Solo para ADMIN
-    const movie = this.moviesRepository.create(createMovieDto);
+    const movie = this.moviesRepository.create(createMovieRequestDto);
     return this.moviesRepository.save(movie);
   }
 
-  async updateMovie(updateMovieDto: UpdateMovieDto) {
+  async updateMovie(updateMovieRequestDto: UpdateMovieRequestDto) {
     //Solo para ADMIN
-    await this.moviesRepository.update(updateMovieDto.id, updateMovieDto);
-    return this.moviesRepository.findOneBy({ id: updateMovieDto.id });
+    await this.moviesRepository.update(
+      updateMovieRequestDto.id,
+      updateMovieRequestDto,
+    );
+    this.moviesRepository.findOneBy({ id: updateMovieRequestDto.id });
   }
 
-  async deleteMovie(deleteMovieDto: DeleteMovieDto) {
+  async deleteMovie(deleteMovieRequestDto: DeleteMovieRequestDto) {
     //Solo para ADMIN
-    await this.moviesRepository.delete(deleteMovieDto.id);
+    await this.moviesRepository.delete(deleteMovieRequestDto.id);
   }
 
   async syncMoviesFromAPI() {
@@ -126,13 +105,46 @@ export class MoviesManagementService {
         mapSwapiMovieToEntity(response.data.result),
       );
 
+      //Debido a un error de externalid not set (Lo cual genera un 503: Service Unavailable, se genera el siguiente fix)
+
+      //Normalización de externalIds -> TODO: Ver si puedo refactorizar un poco esto
+      const externalIds = movies.map((m) => m.externalId).filter(Boolean);
+
+      let moviesToUpsert = movies;
+
+      if (externalIds.length > 0) {
+        const existing = await this.moviesRepository.find({
+          where: { externalId: In(externalIds as string[]) },
+        });
+
+        const existingMap = new Map(
+          existing.map((e) => [String(e.externalId), e]),
+        );
+
+        moviesToUpsert = movies.map((m) => {
+          const ex = existingMap.get(String(m.externalId));
+          if (ex && ex.id) {
+            m.id = ex.id;
+          }
+          return m;
+        });
+      }
+      //
+
       // Inserto películas  si no existen o actualiza si existen con upsert, método nativo de typeOrm, así me evito sobrecomplicar código.
       await this.moviesRepository.upsert(movies, ['externalId']);
 
-      return {
-        message: 'Películas sincronizadas correctamente',
-        synchronized: movies.length,
-      };
+      if (!Array.isArray(movies) || movies.length === 0) {
+        throw new NotFoundException(
+          'No se encontraron películas en la API externa.',
+        );
+      } else {
+        return {
+          //TODO: Mapear response en un DTO
+          message: 'Películas sincronizadas correctamente',
+          synchronized: movies.length,
+        };
+      }
     } catch (error: any) {
       console.error(error);
       throw error;

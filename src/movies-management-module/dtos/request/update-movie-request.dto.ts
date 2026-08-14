@@ -1,17 +1,26 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
-export class CreateMovieDto {
+export class UpdateMovieRequestDto {
   @ApiProperty({
-    description: 'Título de la película',
+    description: 'Id de la película a actualizar',
+    example: 1,
+  })
+  @IsNumber()
+  @IsNotEmpty()
+  id!: number;
+
+  @ApiProperty({
+    description: 'Título de la película actualizado',
     example: 'A New Hope',
+    required: false,
   })
   @IsString()
-  @IsNotEmpty()
-  title!: string;
+  @IsOptional()
+  title?: string;
 
   @ApiProperty({
-    description: 'Descripción de la película',
+    description: 'Descripción de la película actualizada',
     example: 'The Rebel Alliance makes a risky move to steal plans…',
     required: false,
   })
@@ -20,7 +29,7 @@ export class CreateMovieDto {
   description?: string;
 
   @ApiProperty({
-    description: 'Director de la película',
+    description: 'Director de la película actualizado',
     example: 'George Lucas',
     required: false,
   })
@@ -29,7 +38,7 @@ export class CreateMovieDto {
   director?: string;
 
   @ApiProperty({
-    description: 'Productor de la película',
+    description: 'Productor de la película actualizado',
     example: 'Gary Kurtz, Rick McCallum',
     required: false,
   })
@@ -38,7 +47,7 @@ export class CreateMovieDto {
   producer?: string;
 
   @ApiProperty({
-    description: 'Fecha de estreno',
+    description: 'Fecha de estreno actualizada',
     example: '1977-05-25',
     required: false,
   })

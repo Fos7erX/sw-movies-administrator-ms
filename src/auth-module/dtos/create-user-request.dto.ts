@@ -8,7 +8,7 @@ import { UserRole } from "../../database-module/entities/user.entity";
 //establecer que las variables no serán null, también podría ponerse
 // el símbolo "?" para indicar que el valor puede ser nulo, o definir un
 //valor de ejemplo como un empty string en los strings, o 0 en los numbers
-export class CreateUserDto{
+export class CreateUserRequestDto{
     @IsOptional()
     @IsNumber()
     id!: number;

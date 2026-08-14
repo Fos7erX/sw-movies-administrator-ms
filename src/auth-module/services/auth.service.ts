@@ -5,8 +5,8 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { hash, verify } from '@node-rs/argon2';
-import { CreateUserDto } from '../dtos/create-user.dto';
-import { LoginUserDto } from '../dtos/login-user.dto';
+import { CreateUserRequestDto } from '../dtos/create-user-request.dto';
+import { LoginUserRequestDto } from '../dtos/login-user-request.dto';
 import { UsersService } from '../../users-module/services/users.sevice';
 
 //Notas para documentación:
@@ -24,7 +24,7 @@ export class AuthService {
   ) {}
 
   //Endpoint de registro: Aquí se hasheará la contraseña con Argon2id.
-  async registerUser(createUserDto: CreateUserDto) {
+  async registerUser(createUserDto: CreateUserRequestDto) {
     const userExists = await this.usersService.findByEmail(createUserDto.email);
 
     if (userExists) {
@@ -50,7 +50,7 @@ export class AuthService {
   }
 
   //Endpoint de login: Aquí se generará el token JWT
-  async login(loginUserDto: LoginUserDto) {
+  async login(loginUserDto: LoginUserRequestDto) {
     const user = await this.validateUser(
       loginUserDto.email,
       loginUserDto.password,

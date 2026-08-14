@@ -3,8 +3,8 @@ import { AuthService } from './auth.service';
 import { UsersService } from '../../users-module/services/users.sevice';
 import { JwtService } from '@nestjs/jwt';
 import { UserRole } from '../../database-module/entities/user.entity';
-import { CreateUserDto } from '../dtos/create-user.dto';
-import { LoginUserDto } from '../dtos/login-user.dto';
+import { CreateUserRequestDto } from '../dtos/create-user-request.dto';
+import { LoginUserRequestDto } from '../dtos/login-user-request.dto';
 
 jest.mock('@node-rs/argon2', () => ({
   hash: jest.fn(),
@@ -40,7 +40,7 @@ describe('AuthService', () => {
       email: 'test@example.com',
       password: 'Aa1!aaaaa',
       role: UserRole.USER,
-    } as CreateUserDto;
+    } as CreateUserRequestDto;
 
     (mockUsersService.findByEmail as jest.Mock).mockResolvedValue(null);
     (hash as jest.Mock).mockResolvedValue('hashed-password');
@@ -75,7 +75,7 @@ describe('AuthService', () => {
       email: 'test@example.com',
       password: 'Aa1!aaaaa',
       role: UserRole.USER,
-    } as CreateUserDto;
+    } as CreateUserRequestDto;
 
     (mockUsersService.findByEmail as jest.Mock).mockResolvedValue({
       id: 1,
@@ -133,7 +133,7 @@ describe('AuthService', () => {
     const loginDto = {
       email: 'test@example.com',
       password: 'Aa1!aaaaa',
-    } as LoginUserDto;
+    } as LoginUserRequestDto;
 
     jest.spyOn(authService, 'validateUser' as any).mockResolvedValue({
       id: 1,
@@ -159,7 +159,7 @@ describe('AuthService', () => {
     const loginDto = {
       email: 'test@example.com',
       password: 'Aa1!aaaaa',
-    } as LoginUserDto;
+    } as LoginUserRequestDto;
 
     jest.spyOn(authService, 'validateUser' as any).mockResolvedValue(null);
 

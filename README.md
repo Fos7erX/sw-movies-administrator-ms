@@ -128,4 +128,7 @@ En caso de que las pruebas pasen, debería figurar algo tal que asi en la consol
 
 <img width="704" height="603" alt="image" src="https://github.com/user-attachments/assets/1dcb3e7b-0a5d-41c5-bc96-28763005a541" />
 
+¿Cómo verificar el coverage de la aplicación?
+
+Para verificar el coverage de la aplicación se puede ejecutar el siguiente comando: `npm test -- --coverage`, lo cual nos traerá la info sobre cobertura de pruebas dentro del proyecto (Falta pegar screenshot). 
 
